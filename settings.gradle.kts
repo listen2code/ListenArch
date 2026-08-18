@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ListenArch"
 include(":app")
- 
+project(":app").name = "listen-arch"

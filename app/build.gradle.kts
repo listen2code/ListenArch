@@ -1,6 +1,9 @@
 plugins {
     id("com.android.library")
+    id("com.google.devtools.ksp") version "2.2.10-2.0.2"
 }
+
+group = "com.listen"
 
 android {
     namespace = "com.listen.arch"
@@ -28,16 +31,17 @@ dependencies {
     implementation("com.google.android.material:material:1.10.0")
 
     // Coroutines & Lifecycle ViewModel Flow
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
 
     // Room Database
-    implementation("androidx.room:room-runtime:2.8.4")
-    implementation("androidx.room:room-ktx:2.8.4")
+    api("androidx.room:room-runtime:2.8.4")
+    api("androidx.room:room-ktx:2.8.4")
+    ksp("androidx.room:room-compiler:2.8.4")
 
     // DataStore Preferences
-    implementation("androidx.datastore:datastore-preferences:1.2.1")
+    api("androidx.datastore:datastore-preferences:1.2.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
