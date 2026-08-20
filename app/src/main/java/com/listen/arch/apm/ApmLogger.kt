@@ -1,6 +1,5 @@
 package com.listen.arch.apm
 
-import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,15 +39,6 @@ object ApmLogger {
             stackTrace = stackTrace
         )
 
-        // System Logcat Output
-        val formattedMsg = if (traceId != null) "[$traceId] $message" else message
-        when (level) {
-            ApmLogLevel.DEBUG -> Log.d(tag, formattedMsg, throwable)
-            ApmLogLevel.INFO -> Log.i(tag, formattedMsg, throwable)
-            ApmLogLevel.WARN -> Log.w(tag, formattedMsg, throwable)
-            ApmLogLevel.ERROR -> Log.e(tag, formattedMsg, throwable)
-        }
-
         // Memory Ring Buffer
         if (buffer.size >= MAX_LOG_SIZE) {
             buffer.removeAt(0)
@@ -61,16 +51,32 @@ object ApmLogger {
         log(ApmLogLevel.DEBUG, channel, tag, message, traceId)
     }
 
+    fun d(tag: String, message: String, traceId: String? = null) {
+        log(ApmLogLevel.DEBUG, ApmLogChannel.APP, tag, message, traceId)
+    }
+
     fun i(channel: ApmLogChannel = ApmLogChannel.APP, tag: String = "App", message: String, traceId: String? = null) {
         log(ApmLogLevel.INFO, channel, tag, message, traceId)
+    }
+
+    fun i(tag: String, message: String, traceId: String? = null) {
+        log(ApmLogLevel.INFO, ApmLogChannel.APP, tag, message, traceId)
     }
 
     fun w(channel: ApmLogChannel = ApmLogChannel.APP, tag: String = "App", message: String, traceId: String? = null) {
         log(ApmLogLevel.WARN, channel, tag, message, traceId)
     }
 
+    fun w(tag: String, message: String, traceId: String? = null) {
+        log(ApmLogLevel.WARN, ApmLogChannel.APP, tag, message, traceId)
+    }
+
     fun e(channel: ApmLogChannel = ApmLogChannel.APP, tag: String = "App", message: String, traceId: String? = null, throwable: Throwable? = null) {
         log(ApmLogLevel.ERROR, channel, tag, message, traceId, throwable)
+    }
+
+    fun e(tag: String, message: String, throwable: Throwable? = null, traceId: String? = null) {
+        log(ApmLogLevel.ERROR, ApmLogChannel.APP, tag, message, traceId, throwable)
     }
 
     fun db(tag: String = "RoomDB", message: String, traceId: String? = null) {

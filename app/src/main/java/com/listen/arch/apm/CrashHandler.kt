@@ -17,23 +17,29 @@ object CrashHandler {
 
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            try {
-                val sw = StringWriter()
-                throwable.printStackTrace(PrintWriter(sw))
-                val stackTrace = sw.toString()
+            handleCrash(thread, throwable, context.filesDir)
+            defaultHandler?.uncaughtException(thread, throwable)
+        }
+    }
 
-                ApmLogger.crash("UncaughtException", "Crash in thread ${thread.name}: ${throwable.message}", throwable)
+    fun handleCrash(thread: Thread, throwable: Throwable, targetDir: File?): String {
+        return try {
+            val sw = StringWriter()
+            throwable.printStackTrace(PrintWriter(sw))
+            val stackTrace = sw.toString()
 
-                // Persist crash to file
-                val file = File(context.filesDir, "crash_logs.txt")
+            ApmLogger.crash("UncaughtException", "Crash in thread ${thread.name}: ${throwable.message}", throwable)
+
+            if (targetDir != null) {
+                val file = File(targetDir, "crash_logs.txt")
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                 val record = "--- CRASH [${sdf.format(Date())}] Thread: ${thread.name} ---\n$stackTrace\n\n"
                 file.appendText(record)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                defaultHandler?.uncaughtException(thread, throwable)
             }
+            stackTrace
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ""
         }
     }
 }

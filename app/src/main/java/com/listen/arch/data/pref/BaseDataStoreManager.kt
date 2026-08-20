@@ -25,6 +25,8 @@ open class BaseDataStoreManager(private val context: Context) {
         val KEY_CURRENCY_SYMBOL = stringPreferencesKey("currency_symbol")
         val KEY_IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
         val KEY_USER_EMAIL = stringPreferencesKey("user_email")
+        val KEY_USER_DISPLAY_NAME = stringPreferencesKey("user_display_name")
+        val KEY_USER_AVATAR_URL = stringPreferencesKey("user_avatar_url")
         val KEY_LAST_SYNC = longPreferencesKey("last_sync_timestamp")
         val KEY_MONTHLY_BUDGET = doublePreferencesKey("monthly_budget")
     }
@@ -57,6 +59,14 @@ open class BaseDataStoreManager(private val context: Context) {
         prefs[KEY_USER_EMAIL] ?: ""
     }
 
+    val userDisplayNameFlow: Flow<String> = context.archDataStore.data.map { prefs ->
+        prefs[KEY_USER_DISPLAY_NAME] ?: ""
+    }
+
+    val userAvatarUrlFlow: Flow<String> = context.archDataStore.data.map { prefs ->
+        prefs[KEY_USER_AVATAR_URL] ?: ""
+    }
+
     val lastSyncTimestampFlow: Flow<Long> = context.archDataStore.data.map { prefs ->
         prefs[KEY_LAST_SYNC] ?: 0L
     }
@@ -81,10 +91,17 @@ open class BaseDataStoreManager(private val context: Context) {
         context.archDataStore.edit { prefs -> prefs[KEY_MONTHLY_BUDGET] = budget }
     }
 
-    suspend fun setLoggedIn(isLoggedIn: Boolean, userEmail: String = "") {
+    suspend fun setLoggedIn(
+        isLoggedIn: Boolean,
+        userEmail: String = "",
+        displayName: String = "",
+        avatarUrl: String = ""
+    ) {
         context.archDataStore.edit { prefs ->
             prefs[KEY_IS_LOGGED_IN] = isLoggedIn
             prefs[KEY_USER_EMAIL] = userEmail
+            prefs[KEY_USER_DISPLAY_NAME] = displayName
+            prefs[KEY_USER_AVATAR_URL] = avatarUrl
         }
     }
 

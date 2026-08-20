@@ -1,54 +1,97 @@
 package com.listen.arch.data.backup
 
 import com.listen.arch.data.db.TransactionEntity
-import org.json.JSONArray
-import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 object TransactionBackupManager {
 
     fun exportToJson(transactions: List<TransactionEntity>): String {
-        val jsonArray = JSONArray()
-        transactions.forEach { tx ->
-            val obj = JSONObject().apply {
-                put("id", tx.id)
-                put("type", tx.type)
-                put("categoryId", tx.categoryId)
-                put("categoryName", tx.categoryName)
-                put("categoryIcon", tx.categoryIcon)
-                put("categoryColorHex", tx.categoryColorHex)
-                put("amount", tx.amount)
-                put("note", tx.note)
-                put("accountType", tx.accountType)
-                put("timestamp", tx.timestamp)
-            }
-            jsonArray.put(obj)
+        val sb = StringBuilder()
+        sb.append("[\n")
+        transactions.forEachIndexed { index, tx ->
+            sb.append("  {\n")
+            sb.append("    \"id\": \"${escapeJson(tx.id)}\",\n")
+            sb.append("    \"type\": \"${escapeJson(tx.type)}\",\n")
+            sb.append("    \"categoryId\": \"${escapeJson(tx.categoryId)}\",\n")
+            sb.append("    \"categoryName\": \"${escapeJson(tx.categoryName)}\",\n")
+            sb.append("    \"categoryIcon\": \"${escapeJson(tx.categoryIcon)}\",\n")
+            sb.append("    \"categoryColorHex\": \"${escapeJson(tx.categoryColorHex)}\",\n")
+            sb.append("    \"amount\": ${tx.amount},\n")
+            sb.append("    \"note\": \"${escapeJson(tx.note)}\",\n")
+            sb.append("    \"accountType\": \"${escapeJson(tx.accountType)}\",\n")
+            sb.append("    \"timestamp\": ${tx.timestamp}\n")
+            sb.append("  }")
+            if (index < transactions.size - 1) sb.append(",")
+            sb.append("\n")
         }
-        return jsonArray.toString(2)
+        sb.append("]")
+        return sb.toString()
     }
 
     fun importFromJson(jsonStr: String): List<TransactionEntity> {
         val list = mutableListOf<TransactionEntity>()
-        val jsonArray = JSONArray(jsonStr)
-        for (i in 0 until jsonArray.length()) {
-            val obj = jsonArray.getJSONObject(i)
-            val tx = TransactionEntity(
-                id = obj.optString("id", java.util.UUID.randomUUID().toString()),
-                type = obj.optString("type", "EXPENSE"),
-                categoryId = obj.optString("categoryId", "c_other_exp"),
-                categoryName = obj.optString("categoryName", "其他"),
-                categoryIcon = obj.optString("categoryIcon", "c_other_exp"),
-                categoryColorHex = obj.optString("categoryColorHex", "#6B7280"),
-                amount = obj.optDouble("amount", 0.0),
-                note = obj.optString("note", ""),
-                accountType = obj.optString("accountType", "WECHAT"),
-                timestamp = obj.optLong("timestamp", System.currentTimeMillis())
-            )
-            list.add(tx)
+        val trimmed = jsonStr.trim()
+        if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) return emptyList()
+
+        // Match each JSON object inside the array
+        val objectRegex = Regex("""\{([^}]+)\}""")
+        val matches = objectRegex.findAll(trimmed)
+
+        for (match in matches) {
+            val content = match.groupValues[1]
+            val map = parseJsonObjectContent(content)
+            if (map.isNotEmpty()) {
+                val tx = TransactionEntity(
+                    id = map["id"] ?: UUID.randomUUID().toString(),
+                    type = map["type"] ?: "EXPENSE",
+                    categoryId = map["categoryId"] ?: "c_other_exp",
+                    categoryName = map["categoryName"] ?: "其他",
+                    categoryIcon = map["categoryIcon"] ?: "c_other_exp",
+                    categoryColorHex = map["categoryColorHex"] ?: "#6B7280",
+                    amount = map["amount"]?.toDoubleOrNull() ?: 0.0,
+                    note = map["note"] ?: "",
+                    accountType = map["accountType"] ?: "WECHAT",
+                    timestamp = map["timestamp"]?.toLongOrNull() ?: System.currentTimeMillis()
+                )
+                list.add(tx)
+            }
         }
         return list
+    }
+
+    private fun parseJsonObjectContent(content: String): Map<String, String> {
+        val map = mutableMapOf<String, String>()
+        val pairRegex = Regex(""""([^"]+)"\s*:\s*("(?:\\.|[^"\\])*"|[\d.-]+|true|false|null)""")
+        for (match in pairRegex.findAll(content)) {
+            val key = match.groupValues[1]
+            var rawVal = match.groupValues[2].trim()
+            if (rawVal.startsWith("\"") && rawVal.endsWith("\"")) {
+                rawVal = unescapeJson(rawVal.substring(1, rawVal.length - 1))
+            }
+            map[key] = rawVal
+        }
+        return map
+    }
+
+    private fun escapeJson(str: String): String {
+        return str
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
+    }
+
+    private fun unescapeJson(str: String): String {
+        return str
+            .replace("\\\"", "\"")
+            .replace("\\\\", "\\")
+            .replace("\\n", "\n")
+            .replace("\\r", "\r")
+            .replace("\\t", "\t")
     }
 
     fun exportToCsv(transactions: List<TransactionEntity>): String {
