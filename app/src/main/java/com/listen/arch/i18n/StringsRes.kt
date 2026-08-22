@@ -91,7 +91,9 @@ object StringsRes {
         "manage_accounts_title" to "资产账户管理",
         "add_account" to "新增账户",
         "account_name_input" to "账户名称（如：信用卡、投资账户）",
-        "select_month_dialog" to "选择年月"
+        "select_month_dialog" to "选择年月",
+        "check_update" to "检查更新",
+        "check_update_desc" to "前往 Google Play 检查并升级到最新版本"
     )
 
     private val enMap = mapOf(
@@ -174,7 +176,9 @@ object StringsRes {
         "manage_accounts_title" to "Manage Accounts",
         "add_account" to "Add Account",
         "account_name_input" to "Account Name (e.g. Credit Card)",
-        "select_month_dialog" to "Select Month"
+        "select_month_dialog" to "Select Month",
+        "check_update" to "Check for Updates",
+        "check_update_desc" to "Open Google Play to check for the latest version"
     )
 
     private val jaMap = mapOf(
@@ -194,7 +198,7 @@ object StringsRes {
         "filter_bank" to "口座",
         "filter_cash" to "現金",
         "sort_date_desc" to "日付（新しい順）",
-        "sort_date_asc" to "日付（古い順）",
+        "sort_date_asc" to "日付（古い顺）",
         "sort_amount_desc" to "金額（高い順）",
         "sort_amount_asc" to "金額（低い順）",
         "stats_title" to "多次元統計分析",
@@ -257,6 +261,8 @@ object StringsRes {
         "manage_accounts_title" to "口座・資産管理",
         "add_account" to "口座を追加",
         "account_name_input" to "口座名（例：クレジットカード）",
-        "select_month_dialog" to "年月を選択"
+        "select_month_dialog" to "年月を選択",
+        "check_update" to "アップデートを確認",
+        "check_update_desc" to "Google Playで最新バージョンを確認・更新"
     )
 }
