@@ -1,6 +1,5 @@
 package com.listen.arch
 
-import com.listen.arch.data.db.TransactionEntity
 import com.listen.arch.sync.CloudSyncManager
 import com.listen.arch.sync.SyncStatus
 import kotlinx.coroutines.runBlocking
@@ -13,33 +12,30 @@ class CloudSyncManagerTest {
 
     @Test
     fun testCloudBackupAndRestore() = runBlocking {
-        val sampleList = listOf(
-            TransactionEntity(
-                id = "tx-cloud-1",
-                type = "EXPENSE",
-                categoryId = "c_food",
-                categoryName = "餐饮",
-                categoryIcon = "c_food",
-                categoryColorHex = "#EF4444",
-                amount = 88.0,
-                note = "云端测试账单",
-                accountType = "ALIPAY",
-                timestamp = 1723900000000L
-            )
-        )
+        val payload = """[{"id":"item-1","name":"Test Payload"}]"""
+        val email = "test@example.com"
 
-        val backupRes = CloudSyncManager.backupToCloud(sampleList, "trace-backup-test")
+        val backupRes = CloudSyncManager.backupToCloud(
+            payload = payload,
+            recordCount = 1,
+            accountEmail = email,
+            traceId = "trace-backup-test"
+        )
         assertTrue(backupRes.isSuccess)
         assertEquals(1, backupRes.getOrNull())
 
         val syncState = CloudSyncManager.syncStateFlow.value
         assertEquals(SyncStatus.SUCCESS, syncState.status)
         assertTrue(syncState.lastSyncTimestamp > 0)
+        assertEquals(email, syncState.activeAccountEmail)
 
-        val restoreRes = CloudSyncManager.restoreFromCloud("trace-restore-test")
+        val restoreRes = CloudSyncManager.restoreFromCloud(
+            accountEmail = email,
+            traceId = "trace-restore-test"
+        )
         assertTrue(restoreRes.isSuccess)
-        val restoredList = restoreRes.getOrNull()
-        assertNotNull(restoredList)
-        assertTrue(restoredList!!.isNotEmpty())
+        val restoredPayload = restoreRes.getOrNull()
+        assertNotNull(restoredPayload)
+        assertEquals(payload, restoredPayload)
     }
 }

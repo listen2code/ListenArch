@@ -1,49 +1,47 @@
 # ListenArch
 
 <p align="center">
-  <strong>通用 Android 核心架构与基础设施库 (Universal Android Core Architecture SDK)</strong>
+  <strong>通用 Android 核心架构与基础设施库 (Universal Android Core Architecture & Infrastructure SDK)</strong>
 </p>
 
 ---
 
-## 📖 简介
+## 📖 简介与定位
 
-`ListenArch` 是 Listen 系列原生 Android 应用的核心架构 SDK。提供业务无关、高度可复用的底层基础设施，包含 Room SQLite 数据库封装、`BaseDataStoreManager` Google 账户与偏好持久化、MVI 单向数据流基类 (`BaseViewModel`)、`CloudSyncManager` 账号隔离云端同步引擎、`ApmLogger` 500 条环形内存日志、`TraceManager` 全链路毫秒打点与 `StringsRes` 多语言字典。
-
----
-
-## 🌟 核心模块结构 (`com.listen.arch`)
-
-- **`mvi/`**：
-  - `BaseViewModel<ViewState, UserIntent, ViewEffect>`：响应式 StateFlow 与 Channel 事件驱动 MVI 核心基类（包含 `handleIntent`, `updateState`, `emitEffect`）。
-  - `ResultExtensions.kt`：Kotlin 原生 `Result<T>` 与 `Flow.asResult()` / `safeCall {}` 错误收敛扩展。
-- **`data/db/`**：
-  - `TransactionEntity`：账单数据实体表。
-  - `TransactionDao`：Flow 响应式 SQL 增删改查、区间查询与批量插入 DAO。
-  - `AppDatabase`：Room SQLite 单例数据库。
-- **`data/pref/`**：
-  - `BaseDataStoreManager`：基于 DataStore Preferences 的多语言、主题、强调色、货币符号、月度预算、Google 账户（邮箱/昵称/头像）全通用配置管理者。
-- **`sync/`**：
-  - `CloudSyncManager`：Google 账户隔离的云端备份与恢复引擎，支持 MD5 校验和与 `SyncState` 响应式数据流。
-- **`apm/`**：
-  - `ApmLogger`：500 条内存环形链表日志（APP/DB/SYNC/CRASH 四大频道）。
-  - `TraceManager`：分布式 `traceId` 链路追踪与执行耗时打点。
-  - `CrashHandler`：未捕获全局异常拦截与保护。
-- **`i18n/`**：
-  - `StringsRes` & `AppLanguage`：运行中免重启的中/英/日多语言字典调度系统。
+`ListenArch` 是 Listen 多 App 生态矩阵（记账、资产管理、习惯打卡、备忘录等）的**通用核心架构与技术底座**。
+它遵循**完全业务解耦（Zero Business Coupling）**原则，仅提供通用底层技术设施与标准契约，不包含任何特定业务实体或表结构。
 
 ---
 
-## 📦 使用说明 (Composite Build / Gradle)
+## 🌟 核心功能模块 (`com.listen.arch`)
 
-在宿主 APP 项目的 `settings.gradle.kts` 中添加工程引用：
+- **`mvi/` (单向数据流架构基类)**：
+  - `BaseViewModel<ViewState, UserIntent, ViewEffect>`：响应式 StateFlow 状态机与 SharedFlow 副作用单向数据流核心基类。
+  - `ResultExtensions.kt`：Kotlin 原生 `Result<T>`、`safeCall {}` 异常收敛与流式转换扩展。
+- **`data/pref/` (通用配置持久化)**：
+  - `BaseDataStoreManager`：基于 Jetpack DataStore Preferences 的多 App 通用配置管理者（语言、深浅色主题、强调色、Google 账户认证状态与上次云同步时间戳），支持业务子类通过 `getPreference` / `setPreference` 自由扩展。
+- **`sync/` (通用云同步引擎)**：
+  - `CloudSyncManager`：面向任意序列化数据 Payload（JSON 字符串）的多账户隔离云端加密备份与恢复引擎，内置 MD5 校验和与 `SyncState` 响应式状态流。
+- **`apm/` (应用性能监控与可观测性)**：
+  - `ApmLogger`：500 条高频环形缓冲区内存日志（APP、DB、SYNC、CRASH 四大核心频道）。
+  - `TraceManager`：基于分布式 `traceId` 的毫秒级执行链路耗时打点。
+  - `CrashHandler`：未捕获异常全局兜底与静默排查。
+- **`i18n/` (通用国际化调度引擎)**：
+  - `StringsRes`：内置核心系统通用词（确认、取消、保存、删除、主题设置等），并提供 `registerAppStrings(lang, map)` 开放接口供各业务宿主 App 动态注册自定义多语言字典。
+  - `LocaleManager` & `AppLanguage`：标准 ISO 语言代码与 Android Locale 转换器。
+
+---
+
+## 📦 Gradle 引入说明 (Composite Build)
+
+在宿主 App 项目的 `settings.gradle.kts` 中包含模块：
 
 ```kotlin
 // settings.gradle.kts
 includeBuild("../ListenArch")
 ```
 
-在模块 `build.gradle.kts` 中添加依赖：
+在宿主 App 模块的 `build.gradle.kts` 中添加依赖：
 
 ```kotlin
 dependencies {

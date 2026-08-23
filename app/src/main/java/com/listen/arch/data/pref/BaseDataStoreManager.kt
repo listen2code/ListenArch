@@ -3,7 +3,6 @@ package com.listen.arch.data.pref
 import android.content.Context
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -11,24 +10,23 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-private val Context.archDataStore by preferencesDataStore(name = "listen_app_common_settings")
+val Context.archDataStore by preferencesDataStore(name = "listen_app_common_settings")
 
 /**
- * Universal DataStore Manager for common app settings across all Listen apps.
+ * Universal DataStore Manager for common application settings across all Listen ecosystem apps.
+ * Subclasses in specific apps can extend this class and add app-specific Preference Keys.
  */
-open class BaseDataStoreManager(private val context: Context) {
+open class BaseDataStoreManager(protected val context: Context) {
 
     companion object {
         val KEY_LANGUAGE = stringPreferencesKey("app_language")
         val KEY_THEME_MODE = stringPreferencesKey("theme_mode")
         val KEY_ACCENT_COLOR = stringPreferencesKey("accent_color")
-        val KEY_CURRENCY_SYMBOL = stringPreferencesKey("currency_symbol")
         val KEY_IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
         val KEY_USER_EMAIL = stringPreferencesKey("user_email")
         val KEY_USER_DISPLAY_NAME = stringPreferencesKey("user_display_name")
         val KEY_USER_AVATAR_URL = stringPreferencesKey("user_avatar_url")
         val KEY_LAST_SYNC = longPreferencesKey("last_sync_timestamp")
-        val KEY_MONTHLY_BUDGET = doublePreferencesKey("monthly_budget")
     }
 
     val languageFlow: Flow<String> = context.archDataStore.data.map { prefs ->
@@ -41,14 +39,6 @@ open class BaseDataStoreManager(private val context: Context) {
 
     val accentColorFlow: Flow<String> = context.archDataStore.data.map { prefs ->
         prefs[KEY_ACCENT_COLOR] ?: "EMERALD"
-    }
-
-    val currencySymbolFlow: Flow<String> = context.archDataStore.data.map { prefs ->
-        prefs[KEY_CURRENCY_SYMBOL] ?: "￥"
-    }
-
-    val monthlyBudgetFlow: Flow<Double> = context.archDataStore.data.map { prefs ->
-        prefs[KEY_MONTHLY_BUDGET] ?: 5000.0
     }
 
     val isLoggedInFlow: Flow<Boolean> = context.archDataStore.data.map { prefs ->
@@ -81,14 +71,6 @@ open class BaseDataStoreManager(private val context: Context) {
 
     suspend fun setAccentColor(accent: String) {
         context.archDataStore.edit { prefs -> prefs[KEY_ACCENT_COLOR] = accent }
-    }
-
-    suspend fun setCurrencySymbol(symbol: String) {
-        context.archDataStore.edit { prefs -> prefs[KEY_CURRENCY_SYMBOL] = symbol }
-    }
-
-    suspend fun setMonthlyBudget(budget: Double) {
-        context.archDataStore.edit { prefs -> prefs[KEY_MONTHLY_BUDGET] = budget }
     }
 
     suspend fun setLoggedIn(
