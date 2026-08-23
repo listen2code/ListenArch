@@ -1,7 +1,19 @@
 package com.listen.arch.i18n
 
+/**
+ * Global Centralized Internationalization String Resource Provider.
+ * Provides localized string lookup for Simplified Chinese (zh), English (en), and Japanese (ja).
+ */
 object StringsRes {
 
+    /**
+     * Resolves a localized string given its translation key and active language code.
+     * Falls back to Chinese (zh) or the raw key if not found.
+     *
+     * @param key The translation identifier key
+     * @param lang The two-letter ISO language code ("zh", "en", "ja")
+     * @return The localized human-readable text
+     */
     fun get(key: String, lang: String): String {
         val map = when (lang.lowercase()) {
             "en" -> enMap
@@ -44,6 +56,8 @@ object StringsRes {
         "expense_ranking" to "支出分类排行榜",
         "income_ranking" to "收入分类排行榜",
         "empty_transactions" to "暂无匹配的明细数据，点击右下角按钮记一笔吧！",
+        "empty_month_expense" to "该月份暂无支出数据",
+        "empty_month_income" to "该月份暂无收入数据",
         "btn_add_transaction" to "记一笔",
         "btn_done" to "完成",
         "btn_save" to "保存",
@@ -64,6 +78,11 @@ object StringsRes {
         "settings_cloud" to "云端同步与备份",
         "settings_local_backup" to "本地备份与恢复",
         "settings_apm" to "可观测性与系统运维",
+        "settings_custom_pref" to "个性化与偏好",
+        "settings_category_manage" to "分类管理",
+        "settings_data_manage" to "数据管理与导出",
+        "settings_system_ops" to "系统运维与测试",
+        "seed_data_btn" to "🌱 填充数据",
         "theme_light" to "浅色",
         "theme_dark" to "深色",
         "theme_system" to "系统",
@@ -88,12 +107,21 @@ object StringsRes {
         "google_login_btn" to "登录 Google 账号",
         "google_logout_btn" to "退出登录",
         "google_logged_in" to "已登录 Google 账号：",
+        "google_link_title" to "绑定 Google 账号",
+        "google_link_desc" to "登录后可开启全量账单云端加密备份与跨设备实时同步",
+        "google_manual_email" to "手动输入 Google 邮箱",
+        "google_email_placeholder" to "输入您的 Google 邮箱",
         "manage_accounts_title" to "资产账户管理",
         "add_account" to "新增账户",
         "account_name_input" to "账户名称（如：信用卡、投资账户）",
         "select_month_dialog" to "选择年月",
         "check_update" to "检查更新",
-        "check_update_desc" to "前往 Google Play 检查并升级到最新版本"
+        "check_update_desc" to "前往 Google Play 检查并升级到最新版本",
+        "app_version_label" to "当前版本",
+        "app_architecture_label" to "架构",
+        "app_core_sdk_label" to "核心 SDK",
+        "app_features_label" to "特性",
+        "app_features_desc" to "本地优先 (Local-First)、APM 链路追踪、Google 账户多端加密云备份与恢复、多币种符号切换、收支双维度统计、全量 JSON/CSV 数据导出导入。"
     )
 
     private val enMap = mapOf(
@@ -129,6 +157,8 @@ object StringsRes {
         "expense_ranking" to "Expense Category Ranking",
         "income_ranking" to "Income Category Ranking",
         "empty_transactions" to "No transactions found, tap + to add one!",
+        "empty_month_expense" to "No expense records for this month",
+        "empty_month_income" to "No income records for this month",
         "btn_add_transaction" to "Add",
         "btn_done" to "Done",
         "btn_save" to "Save",
@@ -149,6 +179,11 @@ object StringsRes {
         "settings_cloud" to "Cloud Sync & Backup",
         "settings_local_backup" to "Local Data Backup",
         "settings_apm" to "Observability & Ops",
+        "settings_custom_pref" to "Personalization & Preferences",
+        "settings_category_manage" to "Category Management",
+        "settings_data_manage" to "Data Management & Export",
+        "settings_system_ops" to "System Ops & Testing",
+        "seed_data_btn" to "🌱 Seed Data",
         "theme_light" to "Light",
         "theme_dark" to "Dark",
         "theme_system" to "System",
@@ -173,12 +208,21 @@ object StringsRes {
         "google_login_btn" to "Sign in with Google",
         "google_logout_btn" to "Sign Out",
         "google_logged_in" to "Signed in as: ",
+        "google_link_title" to "Link Google Account",
+        "google_link_desc" to "Sign in to enable cloud backup & multi-device sync",
+        "google_manual_email" to "Enter Google Email Manually",
+        "google_email_placeholder" to "Enter your Google email address",
         "manage_accounts_title" to "Manage Accounts",
         "add_account" to "Add Account",
         "account_name_input" to "Account Name (e.g. Credit Card)",
         "select_month_dialog" to "Select Month",
         "check_update" to "Check for Updates",
-        "check_update_desc" to "Open Google Play to check for the latest version"
+        "check_update_desc" to "Open Google Play to check for the latest version",
+        "app_version_label" to "Current Version",
+        "app_architecture_label" to "Architecture",
+        "app_core_sdk_label" to "Core SDKs",
+        "app_features_label" to "Features",
+        "app_features_desc" to "Local-First, APM Tracing, Encrypted Google Drive Cloud Backup & Restore, Multi-Currency, Dual-dimension Statistics, Full JSON/CSV Export & Import."
     )
 
     private val jaMap = mapOf(
@@ -198,7 +242,7 @@ object StringsRes {
         "filter_bank" to "口座",
         "filter_cash" to "現金",
         "sort_date_desc" to "日付（新しい順）",
-        "sort_date_asc" to "日付（古い顺）",
+        "sort_date_asc" to "日付（古い順）",
         "sort_amount_desc" to "金額（高い順）",
         "sort_amount_asc" to "金額（低い順）",
         "stats_title" to "多次元統計分析",
@@ -214,6 +258,8 @@ object StringsRes {
         "expense_ranking" to "支出カテゴリー別順位",
         "income_ranking" to "収入カテゴリー別順位",
         "empty_transactions" to "明細データがありません。+ ボタンで追加してください！",
+        "empty_month_expense" to "この月の支出データはありません",
+        "empty_month_income" to "この月の収入データはありません",
         "btn_add_transaction" to "記録する",
         "btn_done" to "完了",
         "btn_save" to "保存",
@@ -234,6 +280,11 @@ object StringsRes {
         "settings_cloud" to "クラウド同期・バックアップ",
         "settings_local_backup" to "ローカルバックアップ",
         "settings_apm" to "APM ログと運用",
+        "settings_custom_pref" to "パーソナライズと設定",
+        "settings_category_manage" to "カテゴリー管理",
+        "settings_data_manage" to "データ管理とエクスポート",
+        "settings_system_ops" to "システム運用とテスト",
+        "seed_data_btn" to "🌱 デモデータを追加",
         "theme_light" to "ライト",
         "theme_dark" to "ダーク",
         "theme_system" to "システム",
@@ -258,11 +309,20 @@ object StringsRes {
         "google_login_btn" to "Google でログイン",
         "google_logout_btn" to "ログアウト",
         "google_logged_in" to "ログイン済み: ",
+        "google_link_title" to "Google アカウントを連携",
+        "google_link_desc" to "連携すると暗号化クラウドバックアップと端末間同期が有効になります",
+        "google_manual_email" to "Google メールを手動入力",
+        "google_email_placeholder" to "Google メールアドレスを入力",
         "manage_accounts_title" to "口座・資産管理",
         "add_account" to "口座を追加",
         "account_name_input" to "口座名（例：クレジットカード）",
         "select_month_dialog" to "年月を選択",
         "check_update" to "アップデートを確認",
-        "check_update_desc" to "Google Playで最新バージョンを確認・更新"
+        "check_update_desc" to "Google Playで最新バージョンを確認・更新",
+        "app_version_label" to "現在のバージョン",
+        "app_architecture_label" to "アーキテクチャ",
+        "app_core_sdk_label" to "コアSDK",
+        "app_features_label" to "機能",
+        "app_features_desc" to "ローカル優先、APM追跡、Googleアカウント暗号化クラウドバックアップと復元、複数通貨切り替え、収支統計、全件JSON/CSVエクスポート・インポート対応。"
     )
 }
