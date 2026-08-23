@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.security.MessageDigest
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Universal Cloud Synchronization Lifecycle Status.
@@ -71,7 +72,7 @@ object CloudSyncManager {
         )
 
         return try {
-            delay(120) // Realistic secure network negotiation
+            delay(120.milliseconds) // Realistic secure network negotiation
             val count = TraceManager.trace(
                 channel = ApmLogChannel.SYNC,
                 tag = "CloudSync",
@@ -132,7 +133,7 @@ object CloudSyncManager {
         )
 
         return try {
-            delay(150) // Realistic cloud retrieval
+            delay(150.milliseconds) // Realistic cloud retrieval
             val payload = TraceManager.trace(
                 channel = ApmLogChannel.SYNC,
                 tag = "CloudSync",
