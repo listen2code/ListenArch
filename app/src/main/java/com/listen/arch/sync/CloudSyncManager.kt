@@ -35,7 +35,7 @@ data class SyncState(
 
 /**
  * Universal Cloud Synchronization Engine.
- * Accepts generic serialized data payloads (JSON) from any host application (Expense, Portfolio, Habit, etc.)
+ * Accepts generic serialized data payloads (JSON/Text) from any host application
  * and simulates or executes encrypted remote synchronization.
  */
 object CloudSyncManager {
