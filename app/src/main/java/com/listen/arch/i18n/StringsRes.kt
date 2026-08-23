@@ -251,3 +251,12 @@ object StringsRes {
         "btn_delete" to "削除"
     )
 }
+
+/**
+ * Idiomatic Kotlin String extension function for localized translation lookup.
+ * Example: "app_version_label".tr(lang)
+ *
+ * @param lang ISO Language code ("zh", "en", "ja")
+ * @return Localized string text
+ */
+fun String.tr(lang: String = "zh"): String = StringsRes.get(this, lang)
