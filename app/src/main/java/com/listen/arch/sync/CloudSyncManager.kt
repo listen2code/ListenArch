@@ -22,13 +22,15 @@ enum class SyncStatus {
 
 /**
  * Universal State representation of cloud synchronization operations across all Listen apps.
+ * Uses translation message keys instead of hardcoded strings for clean internationalization.
  */
 data class SyncState(
     val status: SyncStatus = SyncStatus.IDLE,
     val lastSyncTimestamp: Long = 0L,
-    val message: String = "",
+    val messageKey: String = "cloud_status_idle",
     val activeAccountEmail: String = "",
-    val cloudRecordCount: Int = 0
+    val cloudRecordCount: Int = 0,
+    val errorMessage: String? = null
 )
 
 /**
@@ -60,15 +62,20 @@ object CloudSyncManager {
         traceId: String = TraceManager.newTraceId()
     ): Result<Int> {
         if (accountEmail.isBlank()) {
-            val err = IllegalStateException("未登录账户，无法进行云端加密备份！")
-            _syncStateFlow.value = SyncState(status = SyncStatus.ERROR, message = err.message ?: "未登录账户")
+            val err = IllegalStateException("sync_err_not_logged_in")
+            _syncStateFlow.value = SyncState(
+                status = SyncStatus.ERROR,
+                messageKey = "sync_err_not_logged_in",
+                errorMessage = err.message
+            )
             return Result.failure(err)
         }
 
         _syncStateFlow.value = _syncStateFlow.value.copy(
             status = SyncStatus.SYNCING,
-            message = "正在加密同步至云端...",
-            activeAccountEmail = accountEmail
+            messageKey = "sync_msg_syncing",
+            activeAccountEmail = accountEmail,
+            errorMessage = null
         )
 
         return try {
@@ -94,16 +101,18 @@ object CloudSyncManager {
             _syncStateFlow.value = SyncState(
                 status = SyncStatus.SUCCESS,
                 lastSyncTimestamp = now,
-                message = "云端备份成功 (已安全同步 $count 条记录)",
+                messageKey = "sync_msg_backup_success",
                 activeAccountEmail = accountEmail,
-                cloudRecordCount = count
+                cloudRecordCount = count,
+                errorMessage = null
             )
             Result.success(count)
         } catch (e: Exception) {
             _syncStateFlow.value = SyncState(
                 status = SyncStatus.ERROR,
-                message = "云端备份失败: ${e.message}",
-                activeAccountEmail = accountEmail
+                messageKey = "sync_msg_failed",
+                activeAccountEmail = accountEmail,
+                errorMessage = e.message
             )
             Result.failure(e)
         }
@@ -121,15 +130,20 @@ object CloudSyncManager {
         traceId: String = TraceManager.newTraceId()
     ): Result<String> {
         if (accountEmail.isBlank()) {
-            val err = IllegalStateException("未登录账户，无法进行云端还原！")
-            _syncStateFlow.value = SyncState(status = SyncStatus.ERROR, message = err.message ?: "未登录账户")
+            val err = IllegalStateException("sync_err_not_logged_in")
+            _syncStateFlow.value = SyncState(
+                status = SyncStatus.ERROR,
+                messageKey = "sync_err_not_logged_in",
+                errorMessage = err.message
+            )
             return Result.failure(err)
         }
 
         _syncStateFlow.value = _syncStateFlow.value.copy(
             status = SyncStatus.SYNCING,
-            message = "正在从云端检索历史备份...",
-            activeAccountEmail = accountEmail
+            messageKey = "sync_msg_syncing",
+            activeAccountEmail = accountEmail,
+            errorMessage = null
         )
 
         return try {
@@ -142,7 +156,7 @@ object CloudSyncManager {
             ) { _ ->
                 val cloudPayload = accountCloudSnapshots[accountEmail]
                 if (cloudPayload.isNullOrBlank()) {
-                    throw IllegalStateException("当前账户 ($accountEmail) 在云端暂无历史备份，请先执行备份！")
+                    throw IllegalStateException("sync_err_no_snapshot")
                 }
                 ApmLogger.sync(
                     tag = "CloudSync",
@@ -156,15 +170,17 @@ object CloudSyncManager {
             _syncStateFlow.value = SyncState(
                 status = SyncStatus.SUCCESS,
                 lastSyncTimestamp = now,
-                message = "云端数据检索成功",
-                activeAccountEmail = accountEmail
+                messageKey = "sync_msg_restore_success",
+                activeAccountEmail = accountEmail,
+                errorMessage = null
             )
             Result.success(payload)
         } catch (e: Exception) {
             _syncStateFlow.value = SyncState(
                 status = SyncStatus.ERROR,
-                message = "云端还原失败: ${e.message}",
-                activeAccountEmail = accountEmail
+                messageKey = "sync_msg_failed",
+                activeAccountEmail = accountEmail,
+                errorMessage = e.message
             )
             Result.failure(e)
         }
