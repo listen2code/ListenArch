@@ -38,4 +38,21 @@ abstract class BaseViewModel<State, Intent>(initialState: State) : ViewModel() {
             _viewEffect.emit(effect)
         }
     }
+
+    /**
+     * 将通用生命周期事件映射为该 ViewModel 专用的业务 Intent。
+     * 默认返回 null，表示当前 ViewModel 不关心生命周期事件。
+     */
+    open fun toLifecycleIntent(event: LifecycleEvent): Intent? = null
+
+    /**
+     * 内部生命周期事件分发通道，由顶层路由或调度器统一调用。
+     * 若映射出的 Intent 不为 null，则直接送入 [handleIntent] 状态机。
+     */
+    fun dispatchLifecycleEvent(event: LifecycleEvent) {
+        val intent = toLifecycleIntent(event)
+        if (intent != null) {
+            handleIntent(intent)
+        }
+    }
 }

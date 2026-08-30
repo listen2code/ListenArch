@@ -19,6 +19,7 @@ data class TestState(val count: Int = 0)
 sealed interface TestIntent {
     data object Increment : TestIntent
     data class Add(val amount: Int) : TestIntent
+    data object OnScreenAppear : TestIntent
 }
 sealed interface TestEffect : CommonUiEffect {
     data class ShowCount(val count: Int) : TestEffect
@@ -32,7 +33,13 @@ class SampleViewModel : BaseViewModel<TestState, TestIntent>(TestState()) {
                 val newCount = viewState.value.count + intent.amount
                 updateState { copy(count = newCount) }
             }
+            is TestIntent.OnScreenAppear -> updateState { copy(count = count + 100) }
         }
+    }
+
+    override fun toLifecycleIntent(event: com.listen.arch.mvi.LifecycleEvent): TestIntent? = when (event) {
+        com.listen.arch.mvi.LifecycleEvent.ON_APPEAR -> TestIntent.OnScreenAppear
+        else -> null
     }
 
     fun emitTestEffect(effect: TestEffect) {
@@ -83,5 +90,21 @@ class BaseViewModelTest {
 
         assertEquals(TestEffect.ShowCount(10), receivedEffect)
         job.cancel()
+    }
+
+    @Test
+    fun testLifecycleEventDispatch() = runTest(testDispatcher) {
+        val vm = SampleViewModel()
+        assertEquals(0, vm.viewState.value.count)
+
+        // Dispatch ON_APPEAR -> mapped to TestIntent.OnScreenAppear (+100)
+        vm.dispatchLifecycleEvent(com.listen.arch.mvi.LifecycleEvent.ON_APPEAR)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(100, vm.viewState.value.count)
+
+        // Dispatch ON_DISAPPEAR -> mapped to null -> no-op
+        vm.dispatchLifecycleEvent(com.listen.arch.mvi.LifecycleEvent.ON_DISAPPEAR)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(100, vm.viewState.value.count)
     }
 }
