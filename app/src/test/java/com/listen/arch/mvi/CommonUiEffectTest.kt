@@ -49,8 +49,14 @@ class CommonUiEffectTest {
     }
 
     @Test
+    fun `test OpenUrl properties`() {
+        val effect = CommonUiEffect.OpenUrl("https://github.com")
+        assertEquals("https://github.com", effect.url)
+    }
+
+    @Test
     fun `test object types`() {
-        assertTrue(CommonUiEffect.OpenApmInspector is CommonUiEffect)
-        assertTrue(CommonUiEffect.LaunchGoogleSignIn is CommonUiEffect)
+        assertTrue(CommonUiEffect.NavigateBack is CommonUiEffect)
+        assertTrue(CommonUiEffect.HideKeyboard is CommonUiEffect)
     }
 }

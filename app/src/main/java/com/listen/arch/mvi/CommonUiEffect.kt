@@ -12,7 +12,8 @@ sealed interface CommonUiEffect {
         val onAction: (() -> Unit)? = null
     ) : CommonUiEffect
     data class ShareText(val title: String, val content: String) : CommonUiEffect
-    data object OpenApmInspector : CommonUiEffect
-    data object LaunchGoogleSignIn : CommonUiEffect
     data class NavigateTo(val route: String) : CommonUiEffect
+    data object NavigateBack : CommonUiEffect
+    data class OpenUrl(val url: String) : CommonUiEffect
+    data object HideKeyboard : CommonUiEffect
 }
