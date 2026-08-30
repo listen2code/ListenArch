@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-abstract class BaseViewModel<State, Intent, Effect>(initialState: State) : ViewModel() {
+abstract class BaseViewModel<State, Intent>(initialState: State) : ViewModel() {
 
     private val _viewState = MutableStateFlow(initialState)
     val viewState: StateFlow<State> = _viewState.asStateFlow()
 
-    private val _viewEffect = MutableSharedFlow<Effect>()
-    val viewEffect: SharedFlow<Effect> = _viewEffect.asSharedFlow()
+    private val _viewEffect = MutableSharedFlow<CommonUiEffect>()
+    val viewEffect: SharedFlow<CommonUiEffect> = _viewEffect.asSharedFlow()
 
     protected val currentState: State
         get() = _viewState.value
@@ -27,13 +27,13 @@ abstract class BaseViewModel<State, Intent, Effect>(initialState: State) : ViewM
         _viewState.value = currentState.reducer()
     }
 
-    protected fun emitEffect(builder: () -> Effect) {
+    protected fun emitEffect(builder: () -> CommonUiEffect) {
         viewModelScope.launch {
             _viewEffect.emit(builder())
         }
     }
 
-    protected fun emitEffect(effect: Effect) {
+    protected fun emitEffect(effect: CommonUiEffect) {
         viewModelScope.launch {
             _viewEffect.emit(effect)
         }

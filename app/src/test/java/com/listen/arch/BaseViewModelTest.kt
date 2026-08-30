@@ -1,6 +1,7 @@
 package com.listen.arch
 
 import com.listen.arch.mvi.BaseViewModel
+import com.listen.arch.mvi.CommonUiEffect
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -19,11 +20,11 @@ sealed interface TestIntent {
     data object Increment : TestIntent
     data class Add(val amount: Int) : TestIntent
 }
-sealed interface TestEffect {
+sealed interface TestEffect : CommonUiEffect {
     data class ShowCount(val count: Int) : TestEffect
 }
 
-class SampleViewModel : BaseViewModel<TestState, TestIntent, TestEffect>(TestState()) {
+class SampleViewModel : BaseViewModel<TestState, TestIntent>(TestState()) {
     override fun handleIntent(intent: TestIntent) {
         when (intent) {
             is TestIntent.Increment -> updateState { copy(count = count + 1) }
@@ -74,7 +75,7 @@ class BaseViewModelTest {
         var receivedEffect: TestEffect? = null
 
         val job = launch {
-            receivedEffect = vm.viewEffect.first()
+            receivedEffect = vm.viewEffect.first() as? TestEffect
         }
 
         vm.emitTestEffect(TestEffect.ShowCount(10))
