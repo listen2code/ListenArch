@@ -16,8 +16,9 @@
 ## 🌟 核心功能模块 (`com.listen.arch`)
 
 - **`mvi/` (单向数据流架构基类)**：
-  - `BaseViewModel<State, Intent, Effect>`：响应式 StateFlow 状态机与 SharedFlow 副作用单向数据流核心基类。
-  - `CommonUiEffect`：通用一次性 UI 副作用密封接口（`ShowToast`、`ShowSnackbar`、`ShareText`、`NavigateTo`、`LaunchGoogleSignIn`、`OpenApmInspector`），开箱即用的跨模块标准 Effect 契约。
+  - `BaseViewModel<State, Intent>`：响应式 StateFlow 状态机与 SharedFlow 副作用单向数据流核心基类。Effect 类型统一固定为 `CommonUiEffect`，无需额外泛型声明。内置 `toLifecycleIntent(event)` 与 `dispatchLifecycleEvent(event)` 生命周期集成钩子，支持画面可见性驱动自动刷新。
+  - `LifecycleEvent`：画面级生命周期通用事件枚举（`ON_APPEAR`、`ON_DISAPPEAR`），由顶层路由或调度器统一分发，ViewModel 可选择性映射为业务 Intent。
+  - `CommonUiEffect`：通用一次性 UI 副作用接口（`ShowToast`、`ShowSnackbar`、`ShareText`、`NavigateTo`、`NavigateBack`、`OpenUrl`、`HideKeyboard`），开箱即用的跨模块标准 Effect 契约。各宿主 App 可通过实现此接口自由扩展业务专属 Effect。
   - `ResultExtensions.kt`：Kotlin 原生 `Result<T>`、`safeCall {}` 异常收敛与流式转换扩展。
 - **`data/pref/` (通用配置持久化)**：
   - `BaseDataStoreManager`：基于 Jetpack DataStore Preferences 的多 App 通用配置管理者（语言、深浅色主题、强调色、Google 账户认证状态、上次云同步时间戳、用户邮箱、显示名称与头像 URL），支持业务子类通过 `getPreference` / `setPreference` 自由扩展。
