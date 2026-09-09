@@ -10,11 +10,18 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * MVI 架构的基础 ViewModel。
+ * 这里仅声明了两个泛型：[State]（UI状态）和 [Intent]（用户意图）。
+ * Effect 被硬编码限制为 [CommonUiEffect]，以此简化泛型设计，降低架构复杂度，同时仍能满足大多数通用场景。
+ */
 abstract class BaseViewModel<State, Intent>(initialState: State) : ViewModel() {
 
+    // MutableStateFlow 适用于状态流，因为新的订阅者总能立即获取（回放）最新的 UI 状态。
     private val _viewState = MutableStateFlow(initialState)
     val viewState: StateFlow<State> = _viewState.asStateFlow()
 
+    // MutableSharedFlow 适用于单次消费的副作用（如 Toast，导航），因为它不保留（不回放）历史值，从而避免屏幕旋转等引起的重复触发。
     private val _viewEffect = MutableSharedFlow<CommonUiEffect>()
     val viewEffect: SharedFlow<CommonUiEffect> = _viewEffect.asSharedFlow()
 
@@ -27,6 +34,8 @@ abstract class BaseViewModel<State, Intent>(initialState: State) : ViewModel() {
         _viewState.value = currentState.reducer()
     }
 
+    // 使用 viewModelScope.launch 异步发送副作用，确保此过程非阻塞，
+    // 防止在高频状态更新或耗时任务中阻塞调用者（通常是主线程）。
     protected fun emitEffect(builder: () -> CommonUiEffect) {
         viewModelScope.launch {
             _viewEffect.emit(builder())

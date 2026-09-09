@@ -37,6 +37,11 @@ data class SyncState(
  * Universal Cloud Synchronization Engine.
  * Accepts generic serialized data payloads (JSON/Text) from any host application
  * and simulates or executes encrypted remote synchronization.
+ *
+ * 核心技术决策：
+ * 1. 状态机模式：使用 StateFlow<SyncState> 进行全局单向状态流转。
+ * 2. 多账号隔离：通过 accountCloudSnapshots 字典将不同账户的云快照隔离开来。
+ * 3. 国际化兼容：UI状态中使用 messageKey 替代硬编码字符串，以便于宿主进行 i18n 多语言翻译。
  */
 object CloudSyncManager {
 
@@ -86,6 +91,7 @@ object CloudSyncManager {
                 operationName = "BackupToCloud",
                 traceId = traceId
             ) { _ ->
+                // 计算数据负载的 MD5 摘要，用于后续的数据完整性验证及云端防篡改比对
                 val checksum = computeMd5(payload)
                 accountCloudSnapshots[accountEmail] = payload
 
